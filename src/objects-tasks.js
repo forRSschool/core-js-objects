@@ -228,7 +228,6 @@ function fromJSON(proto, json) {
   return new proto.constructor(...values);
 }
 
-
 /**
  * Sorts the specified array by country name first and city name
  * (if countries are equal) in ascending order.
