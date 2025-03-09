@@ -162,18 +162,35 @@ function makeWord(lettersObject = {}) {
  *    sellTickets([25, 100]) => false (The seller does not have enough money to give change.)
  */
 function sellTickets(queue) {
-  let sum = 0;
-  let isCheck = true;
-  queue.forEach((el) => {
-    sum += 25;
-    if (el > 25) {
-      sum -= el;
-    }
-    if (sum < 0) {
-      isCheck = false;
+  let count25 = 0;
+  let count50 = 0;
+  let isPossible = true;
+
+  queue.forEach((bill) => {
+    if (!isPossible) return;
+
+    if (bill === 25) {
+      count25 += 1;
+    } else if (bill === 50) {
+      if (count25 === 0) {
+        isPossible = false;
+      } else {
+        count25 -= 1;
+        count50 += 1;
+      }
+    } else if (bill === 100) {
+      if (count50 > 0 && count25 > 0) {
+        count50 -= 1;
+        count25 -= 1;
+      } else if (count25 >= 3) {
+        count25 -= 3;
+      } else {
+        isPossible = false;
+      }
     }
   });
-  return isCheck;
+
+  return isPossible;
 }
 
 /**
