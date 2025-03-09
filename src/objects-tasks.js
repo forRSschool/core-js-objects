@@ -379,33 +379,103 @@ function group(array, keySelector, valueSelector) {
  *  For more examples see unit tests.
  */
 
+class Selector {
+  constructor() {
+    this.result = '';
+    this.customError = {
+      occur:
+        'Element, id and pseudo-element should not occur more then one time inside the selector',
+      order:
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element',
+    };
+    this.occurrence = {
+      div: 0,
+      id: 0,
+      pseudoElement: 0,
+    };
+    this.order = 0;
+  }
+
+  element(value) {
+    return this.updateSelector(value, 1, 'div');
+  }
+
+  id(value) {
+    return this.updateSelector(`#${value}`, 2, 'id');
+  }
+
+  class(value) {
+    return this.updateSelector(`.${value}`, 3);
+  }
+
+  attr(value) {
+    return this.updateSelector(`[${value}]`, 4);
+  }
+
+  pseudoClass(value) {
+    return this.updateSelector(`:${value}`, 5);
+  }
+
+  pseudoElement(value) {
+    return this.updateSelector(`::${value}`, 6, 'pseudoElement');
+  }
+
+  combine(selector1, combinator, selector2) {
+    const sel1 = selector1.stringify();
+    const sel2 = selector2.stringify();
+    this.result = `${sel1} ${combinator} ${sel2}`;
+    return this;
+  }
+
+  stringify() {
+    return this.result;
+  }
+
+  updateSelector(value, order, occurrenceKey) {
+    if (this.order > order) {
+      throw new Error(this.customError.order);
+    }
+    this.occurrence[occurrenceKey] += 1;
+    this.validateOccurrence(this.occurrence[occurrenceKey]);
+    this.result += value;
+    this.order = order;
+    return this;
+  }
+
+  validateOccurrence(currentValue) {
+    if (currentValue > 1) {
+      throw new Error(this.customError.occur);
+    }
+  }
+}
+
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    return new Selector().element(value);
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    return new Selector().id(value);
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    return new Selector().class(value);
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    return new Selector().attr(value);
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    return new Selector().pseudoClass(value);
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    return new Selector().pseudoElement(value);
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(selector1, combinator, selector2) {
+    return new Selector().combine(selector1, combinator, selector2);
   },
 };
 
